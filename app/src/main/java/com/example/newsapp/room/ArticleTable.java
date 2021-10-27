@@ -5,7 +5,7 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity
-public class Article {
+public class ArticleTable {
     @PrimaryKey(autoGenerate = true)
     public int uid;
 
@@ -26,4 +26,5 @@ public class Article {
 
     @ColumnInfo(name = "publishedAt")
     public String publishedAt;
+
 }

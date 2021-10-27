@@ -1,22 +1,42 @@
 package com.example.newsapp;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.SearchManager;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.example.newsapp.login.apilogin.SessionManager;
+import com.example.newsapp.room.ArticleRoomViewModel;
+import com.example.newsapp.room.ArticleTable;
+import com.example.newsapp.room.ArticleViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -33,7 +53,22 @@ public class MainActivity extends AppCompatActivity implements CategoryRVAdapter
     private ArrayList<CategoryRVModal> categoryRVModalArrayList;
     private CategoryRVAdapter categoryRVAdapter;
     private NewsRVAdapter newsRVAdapter;
+    private ArticleAdapter articleAdapter;
+    private Button buttonbookmark, logoutbutton;
+    private ArticleViewModel articleViewModel;
+    private ArticleRoomViewModel articleRoomViewModel;
+    private SessionManager sessionManager = new SessionManager();
 
+    boolean isAllowed;
+
+    private Executor backgroundThread = Executors.newSingleThreadExecutor();
+    private Executor mainThread = new Executor() {
+        private Handler mainThreadHandler = new Handler(Looper.getMainLooper());
+        @Override
+        public void execute(Runnable command) {
+            mainThreadHandler.post(command);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +77,12 @@ public class MainActivity extends AppCompatActivity implements CategoryRVAdapter
         newsRV = findViewById(R.id.idRVNews);
         categoryRV = findViewById(R.id.idRVCategories);
         loadingPB = findViewById(R.id.idPBLoading);
+        buttonbookmark = (Button)findViewById(R.id.bookmark);
+
+        isAllowed = SessionManager.getInstance().isSessionActive(this, Calendar.getInstance().getTime());
+        if(isAllowed) {
+            Toast.makeText(MainActivity.this, "Login Success " + sessionManager.getUser(MainActivity.this).toUpperCase() + "", Toast.LENGTH_LONG).show();
+        }
 
         articlesArrayList = new ArrayList<>();
         categoryRVModalArrayList = new ArrayList<>();
@@ -53,6 +94,26 @@ public class MainActivity extends AppCompatActivity implements CategoryRVAdapter
         getCategories();
         getNews("All");
         newsRVAdapter.notifyDataSetChanged();
+
+        //buttonbookmark.setVisibility(View.GONE);
+        //logoutbutton.setVisibility(View.GONE);
+        backgroundThread.execute(new Runnable() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void run() {
+                SystemClock.sleep(3000);
+                mainThread.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(sessionManager.getflagdata(MainActivity.this) == false && isAllowed) {
+                            //insertdata();
+                            sessionManager.setflagdata(MainActivity.this, true);
+                        }
+                        //viewdata();
+                    }
+                });
+            }
+        });
 
     }
 
@@ -69,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements CategoryRVAdapter
     }
 
     private void getNews(String category) {
-        loadingPB.setVisibility(View.VISIBLE);
+        //loadingPB.setVisibility(View.VISIBLE);
         articlesArrayList.clear();
         String categoryURL = "https://newsapi.org/v2/top-headlines?country=id&category=" + category + "&apikey=e24dc0cf8f7a402ea31d1356147237aa";
         String url = "https://newsapi.org/v2/top-headlines?country=id&sortBy=publishedAt&apikey=e24dc0cf8f7a402ea31d1356147237aa";
@@ -90,10 +151,10 @@ public class MainActivity extends AppCompatActivity implements CategoryRVAdapter
             @Override
             public void onResponse(Call<NewsModal> call, Response<NewsModal> response) {
                 NewsModal newsModal = response.body();
-                loadingPB.setVisibility(View.GONE);
+                //loadingPB.setVisibility(View.GONE);
                 ArrayList<Articles> articles = newsModal.getArticles();
                 for (int i=0; i<articles.size(); i++) {
-                    articlesArrayList.add(new Articles(articles.get(i).getTitle(), articles.get(i).getDescription(), articles.get(i).getUrlToImage(),
+                    articlesArrayList.add(new Articles(articles.get(i).getTitle(),articles.get(i).getAuthor(), articles.get(i).getDescription(), articles.get(i).getUrlToImage(),
                             articles.get(i).getUrl(), articles.get(i).getContent(), articles.get(i).getPublishedAt()));
                 }
                 newsRVAdapter.notifyDataSetChanged();
@@ -106,29 +167,90 @@ public class MainActivity extends AppCompatActivity implements CategoryRVAdapter
         });
     }
 
+    public void insertdata(){
+        articleViewModel.ArticleData().observe(MainActivity.this, new Observer<List<Articles>>() {
+            @Override
+            public void onChanged(List<Articles> news) {
+                final int size = news.size();
+                for (int i = 0; i < size; i++) {
+                    ArticleTable articleTable = new ArticleTable();
+                    articleTable.title=news.get(i).getTitle();
+                    articleTable.description=news.get(i).getDescription();
+                    articleTable.urlToImage = news.get(i).getUrlToImage();
+                    articleTable.url = news.get(i).getUrl();
+                    articleTable.content = news.get(i).getContent();
+                    articleTable.publishedAt=news.get(i).getPublishedAt();
+                    articleRoomViewModel.insert(articleTable);
+                }
+            }
+        });
+    }
+
+    public void viewdata(){
+        articleRoomViewModel.getAllArticle().observe(MainActivity.this, articledata -> {
+            if (articledata != null) {
+//                loadingPB.setVisibility(View.GONE);
+                buttonbookmark.setVisibility(View.VISIBLE);
+                logoutbutton.setVisibility(View.VISIBLE);
+                articleAdapter.submitList(articledata);
+            }
+        });
+    }
+
     @Override
     public void onCategoryClick(int position) {
         String category = categoryRVModalArrayList.get(position).getCategory();
         getNews(category);
     }
 
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
+        MenuItem searchItem = menu.findItem(R.id.search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filter(newText);
+                return false;
+            }
+        });
         return true;
+
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.logout:
-                return true;
-            case R.id.search:
-
-            default:
-                return super.onOptionsItemSelected(item);
+    public void filter(String text) {
+        ArrayList<Articles> filteredlist = new ArrayList<>();
+        for (Articles item : articlesArrayList) {
+            if (item.getTitle().toLowerCase().contains(text.toLowerCase())) {
+                filteredlist.add(item);
+            }
+        }
+        if (filteredlist.isEmpty()) {
+            Toast.makeText(this, "Data tidak ditemukan", Toast.LENGTH_SHORT).show();
+        } else {
+            newsRVAdapter.filterList(filteredlist);
         }
     }
 
+    public void bookmark(View view){
+        Intent intent = new Intent(MainActivity.this, BookmarkActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        this.startActivity(intent);
+        finish();
+    }
+
+    public void logout(View view){
+        //articleRoomViewModel.deleteall();
+        SessionManager.getInstance().endUserSession(MainActivity.this);
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        this.startActivity(intent);
+    }
 }

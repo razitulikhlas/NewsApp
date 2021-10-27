@@ -2,14 +2,16 @@ package com.example.newsapp;
 
 public class Articles {
 	private String title;
+	private String author;
 	private String description;
 	private String urlToImage;
 	private String url;
 	private String content;
 	private String publishedAt;
 
-	public Articles(String title, String description, String urlToImage, String url, String content, String publishedAt) {
+	public Articles(String title,String author, String description, String urlToImage, String url, String content, String publishedAt) {
 		this.title = title;
+		this.author = author;
 		this.description = description;
 		this.urlToImage = urlToImage;
 		this.url = url;
@@ -23,6 +25,14 @@ public class Articles {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public String getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
 	}
 
 	public String getDescription() {

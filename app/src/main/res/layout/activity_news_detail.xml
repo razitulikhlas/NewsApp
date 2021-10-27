@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".NewsDetailActivity"
-    android:background="@color/blue_bca">
+    android:background="@color/white">
 
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
@@ -36,7 +36,7 @@
                 android:text="Title"
                 android:id="@+id/idTVTitle"
                 android:layout_below="@id/idIVNews"
-                android:textColor="@color/white"
+                android:textColor="@color/blue_bca"
                 android:textStyle="bold"
                 android:textSize="20sp"
                 android:padding="4dp"
@@ -47,7 +47,7 @@
                 android:text="Sub Description"
                 android:id="@+id/idTVSubDesc"
                 android:layout_below="@id/idTVTitle"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 android:textSize="18sp"
                 android:padding="4dp"
                 android:layout_margin="4dp"/>
@@ -59,7 +59,7 @@
                 android:text="Content"
                 android:layout_margin="4dp"
                 android:padding="4dp"
-                android:textColor="@color/white"/>
+                android:textColor="@color/black"/>
         </RelativeLayout>
 
     </ScrollView>
@@ -69,7 +69,7 @@
         android:layout_height="wrap_content"
         android:text="Read Full News"
         android:background="@color/white"
-        app:backgroundTint="@color/black"
+        app:backgroundTint="@color/blue_bca"
         android:textAllCaps="false"
         android:id="@+id/idBtnReadNews"
         android:layout_marginStart="20dp"

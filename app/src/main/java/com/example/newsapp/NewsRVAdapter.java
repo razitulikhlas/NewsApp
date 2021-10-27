@@ -37,12 +37,14 @@ public class NewsRVAdapter extends RecyclerView.Adapter<NewsRVAdapter.ViewHolder
         holder.subTitleTV.setText(articles.getDescription());
         holder.titleTV.setText(articles.getTitle());
         holder.publishTV.setText(articles.getPublishedAt());
+        holder.authorTV.setText(articles.getAuthor());
         Picasso.get().load(articles.getUrlToImage()).into(holder.newsIV);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(context, NewsDetailActivity.class);
                 i.putExtra("title", articles.getTitle());
+                i.putExtra("author", articles.getAuthor());
                 i.putExtra("content", articles.getContent());
                 i.putExtra("desc", articles.getDescription());
                 i.putExtra("image", articles.getUrlToImage());
@@ -60,14 +62,21 @@ public class NewsRVAdapter extends RecyclerView.Adapter<NewsRVAdapter.ViewHolder
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView titleTV, subTitleTV, publishTV;
+        private TextView titleTV, subTitleTV, publishTV, authorTV, contentTV;
         private ImageView newsIV;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             titleTV = itemView.findViewById(R.id.idTVNewsHeading);
             subTitleTV = itemView.findViewById(R.id.idTVSubTitle);
             publishTV = itemView.findViewById(R.id.idPubAt);
+            authorTV = itemView.findViewById(R.id.idAuthor);
             newsIV = itemView.findViewById(R.id.idIVNews);
+            contentTV = itemView.findViewById(R.id.idTVContent);
         }
+    }
+
+    public void filterList(ArrayList<Articles> filterllist) {
+        articlesArrayList = filterllist;
+        notifyDataSetChanged();
     }
 }
