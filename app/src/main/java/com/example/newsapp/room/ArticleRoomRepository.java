@@ -3,9 +3,6 @@ package com.example.newsapp.room;
 import android.app.Application;
 
 import androidx.lifecycle.LiveData;
-import androidx.room.Dao;
-
-import com.example.newsapp.login.apilogin.Data;
 
 import java.util.List;
 

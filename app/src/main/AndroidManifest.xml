@@ -15,9 +15,14 @@
             android:label="News"
             android:exported="true">
         </activity>
-        <activity android:name=".NewsDetailActivity"></activity>
-        <activity android:name=".BookmarkActivity"></activity>
-        <activity android:name=".SessionActivity"></activity>
+        <activity android:name=".ProfileActivity"
+            android:exported="true"></activity>
+        <activity android:name=".NewsDetailActivity"
+            android:exported="true"></activity>
+        <activity android:name=".BookmarkActivity"
+            android:exported="true"></activity>
+        <activity android:name=".SessionActivity"
+            android:exported="true"></activity>
         <activity
             android:name=".LoginActivity"
             android:exported="true">

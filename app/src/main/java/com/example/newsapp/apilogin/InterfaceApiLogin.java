@@ -1,4 +1,6 @@
-package com.example.newsapp.login.apilogin;
+package com.example.newsapp.apilogin;
+
+import com.example.newsapp.model.UserLogged;
 
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -12,5 +14,5 @@ public interface InterfaceApiLogin {
     @Headers("X-API-KEY:454041184B0240FBA3AACD15A1F7A8BB")
     @FormUrlEncoded
     @POST("login")
-    Call<user> User(@Field("username") String user, @Field("password") String pass);
+    Call<UserLogged> User(@Field("username") String user, @Field("password") String pass);
 }

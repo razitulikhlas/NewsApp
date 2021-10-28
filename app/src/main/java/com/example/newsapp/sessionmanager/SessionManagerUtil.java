@@ -1,4 +1,4 @@
-package com.example.newsapp.login.apilogin;
+package com.example.newsapp.sessionmanager;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -6,18 +6,18 @@ import android.content.SharedPreferences;
 import java.util.Calendar;
 import java.util.Date;
 
-public class SessionManager {
-    public static final String SESSION_PREFERENCE = "com.example.newsapp.SessionManager.SESSION_PREFERENCE";
-    public static final String SESSION_TOKEN = "com.example.newsapp.SessionManager.SESSION_TOKEN";
-    public static final String SESSION_EXPIRY_TIME = "com.example.newsapp.SessionManager.SESSION_EXPIRY_TIME";
-    public static final String SESSION_USER = "com.example.newsapp.SessionManager.SESSION_USER";
-    public static final String SESSION_DATA = "com.example.newsapp.SessionManager.SESSION_DATA";
-    public static final String TOKEN_USER = "com.example.newsapp.SessionManager.TOKEN";
+public class SessionManagerUtil {
 
-    private static SessionManager INSTANCE;
-    public static SessionManager getInstance(){
+    public static final String SESSION_PREFERENCE = "com.example.newsapp.sessionmanager.SessionManagerUtil.SESSION_PREFERENCE";
+    public static final String SESSION_TOKEN = "com.example.newsapp.sessionmanager.SessionManagerUtil.SESSION_TOKEN";
+    public static final String SESSION_EXPIRY_TIME = "com.example.newsapp.sessionmanager.SessionManagerUtil.SESSION_EXPIRY_TIME";
+    public static final String SESSION_USER = "com.example.newsapp.sessionmanager.SessionManagerUtil.SESSION_USER";
+    public static final String SESSION_DATA = "com.example.newsapp.sessionmanager.SessionManagerUtil.SESSION_DATA";
+
+    private static SessionManagerUtil INSTANCE;
+    public static SessionManagerUtil getInstance(){
         if (INSTANCE == null){
-            INSTANCE = new SessionManager();
+            INSTANCE = new SessionManagerUtil();
         }
         return INSTANCE;
     }
@@ -45,33 +45,6 @@ public class SessionManager {
                 .getLong(SESSION_EXPIRY_TIME, 0);
     }
 
-    public String getUser(Context context){
-        return context.getSharedPreferences(SESSION_PREFERENCE, Context.MODE_PRIVATE)
-                .getString(SESSION_USER, "");
-    }
-
-
-    public void setUser(Context context, String user){
-        SharedPreferences.Editor editor =
-                context.getSharedPreferences(SESSION_PREFERENCE, Context.MODE_PRIVATE).edit();
-        editor.putString(SESSION_USER, user);
-        editor.apply();
-    }
-
-
-    public boolean getflagdata(Context context){
-        return context.getSharedPreferences(SESSION_PREFERENCE, Context.MODE_PRIVATE)
-                .getBoolean(SESSION_DATA, false);
-    }
-
-    public void setflagdata(Context context, boolean flagdata){
-        SharedPreferences.Editor editor =
-                context.getSharedPreferences(SESSION_PREFERENCE, Context.MODE_PRIVATE).edit();
-        editor.putBoolean(SESSION_DATA, flagdata);
-        editor.apply();
-    }
-
-
     public void storeUserToken(Context context, String token){
         SharedPreferences.Editor editor =
                 context.getSharedPreferences(SESSION_PREFERENCE, Context.MODE_PRIVATE).edit();
@@ -82,6 +55,11 @@ public class SessionManager {
     public String getUserToken(Context context){
         return context.getSharedPreferences(SESSION_PREFERENCE, Context.MODE_PRIVATE)
                 .getString(SESSION_TOKEN, "");
+    }
+
+    public String getUser(Context context){
+        return context.getSharedPreferences(SESSION_PREFERENCE, Context.MODE_PRIVATE)
+                .getString(SESSION_USER, "");
     }
 
     public void endUserSession(Context context){

@@ -1,23 +1,18 @@
 package com.example.newsapp;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -26,11 +21,10 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.example.newsapp.login.apilogin.SessionManager;
 import com.example.newsapp.room.ArticleRoomViewModel;
 import com.example.newsapp.room.ArticleTable;
 import com.example.newsapp.room.ArticleViewModel;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.example.newsapp.sessionmanager.SessionManagerUtil;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -46,7 +40,12 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity implements CategoryRVAdapter.CategoryClickInterface {
 
-    //e24dc0cf8f7a402ea31d1356147237aa
+    private SessionManagerUtil sessionManager = new SessionManagerUtil();
+    private String fullname;
+    private String email;
+    private Intent tempIntent;
+    boolean isAllowed;
+
     private RecyclerView newsRV, categoryRV;
     private ProgressBar loadingPB;
     private ArrayList<Articles> articlesArrayList;
@@ -57,9 +56,7 @@ public class MainActivity extends AppCompatActivity implements CategoryRVAdapter
     private Button buttonbookmark, logoutbutton;
     private ArticleViewModel articleViewModel;
     private ArticleRoomViewModel articleRoomViewModel;
-    private SessionManager sessionManager = new SessionManager();
 
-    boolean isAllowed;
 
     private Executor backgroundThread = Executors.newSingleThreadExecutor();
     private Executor mainThread = new Executor() {
@@ -73,16 +70,21 @@ public class MainActivity extends AppCompatActivity implements CategoryRVAdapter
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        isAllowed = SessionManagerUtil.getInstance().isSessionActive(this, Calendar.getInstance().getTime());
         setContentView(R.layout.activity_main);
+        tempIntent = getIntent();
+        fullname = tempIntent.getStringExtra("name_key");
+        email = tempIntent.getStringExtra("email_key");
+
         newsRV = findViewById(R.id.idRVNews);
         categoryRV = findViewById(R.id.idRVCategories);
         loadingPB = findViewById(R.id.idPBLoading);
         buttonbookmark = (Button)findViewById(R.id.bookmark);
 
-        isAllowed = SessionManager.getInstance().isSessionActive(this, Calendar.getInstance().getTime());
-        if(isAllowed) {
-            Toast.makeText(MainActivity.this, "Login Success " + sessionManager.getUser(MainActivity.this).toUpperCase() + "", Toast.LENGTH_LONG).show();
-        }
+
+//        if(isAllowed) {
+//            Toast.makeText(MainActivity.this, "Login Success " + sessionManager.getUser(MainActivity.this).toUpperCase() + "", Toast.LENGTH_LONG).show();
+//        }
 
         articlesArrayList = new ArrayList<>();
         categoryRVModalArrayList = new ArrayList<>();
@@ -94,26 +96,6 @@ public class MainActivity extends AppCompatActivity implements CategoryRVAdapter
         getCategories();
         getNews("All");
         newsRVAdapter.notifyDataSetChanged();
-
-        //buttonbookmark.setVisibility(View.GONE);
-        //logoutbutton.setVisibility(View.GONE);
-        backgroundThread.execute(new Runnable() {
-            @RequiresApi(api = Build.VERSION_CODES.O)
-            @Override
-            public void run() {
-                SystemClock.sleep(3000);
-                mainThread.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(sessionManager.getflagdata(MainActivity.this) == false && isAllowed) {
-                            //insertdata();
-                            sessionManager.setflagdata(MainActivity.this, true);
-                        }
-                        //viewdata();
-                    }
-                });
-            }
-        });
 
     }
 
@@ -245,12 +227,18 @@ public class MainActivity extends AppCompatActivity implements CategoryRVAdapter
         this.startActivity(intent);
         finish();
     }
-
     public void logout(View view){
-        //articleRoomViewModel.deleteall();
-        SessionManager.getInstance().endUserSession(MainActivity.this);
+        SessionManagerUtil.getInstance().endUserSession(MainActivity.this);
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        this.startActivity(intent);
+    }
+
+    public void profile(View view){
+        Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra("fullname",fullname);
+        intent.putExtra("email",email);
         this.startActivity(intent);
     }
 }

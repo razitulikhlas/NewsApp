@@ -1,9 +1,9 @@
-package com.example.newsapp.login.apilogin;
+package com.example.newsapp.model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class user {
+public class UserLogged {
     @SerializedName("status")
     @Expose
     private Boolean status;

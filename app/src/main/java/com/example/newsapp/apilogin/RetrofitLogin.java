@@ -1,6 +1,6 @@
-package com.example.newsapp.login.apilogin;
+package com.example.newsapp.apilogin;
 
-import static com.example.newsapp.login.apilogin.InterfaceApiLogin.LOGIN_URL;
+import static com.example.newsapp.apilogin.InterfaceApiLogin.LOGIN_URL;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
