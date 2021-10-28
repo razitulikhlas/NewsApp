@@ -4,6 +4,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -13,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.se.omapi.Session;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -38,12 +40,12 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class MainActivity extends AppCompatActivity implements CategoryRVAdapter.CategoryClickInterface {
+public class MainActivity extends SessionActivity implements CategoryRVAdapter.CategoryClickInterface {
 
     private SessionManagerUtil sessionManager = new SessionManagerUtil();
+    private Intent tempIntent = getIntent();
     private String fullname;
     private String email;
-    private Intent tempIntent;
     boolean isAllowed;
 
     private RecyclerView newsRV, categoryRV;
@@ -73,9 +75,8 @@ public class MainActivity extends AppCompatActivity implements CategoryRVAdapter
         isAllowed = SessionManagerUtil.getInstance().isSessionActive(this, Calendar.getInstance().getTime());
         setContentView(R.layout.activity_main);
         tempIntent = getIntent();
-        fullname = tempIntent.getStringExtra("name_key");
-        email = tempIntent.getStringExtra("email_key");
-
+        fullname = tempIntent.getStringExtra("fullname");
+        email = tempIntent.getStringExtra("email");
         newsRV = findViewById(R.id.idRVNews);
         categoryRV = findViewById(R.id.idRVCategories);
         loadingPB = findViewById(R.id.idPBLoading);
@@ -224,6 +225,8 @@ public class MainActivity extends AppCompatActivity implements CategoryRVAdapter
         Intent intent = new Intent(MainActivity.this, BookmarkActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.putExtra("fullname",fullname);
+        intent.putExtra("email",email);
         this.startActivity(intent);
         finish();
     }
@@ -236,9 +239,9 @@ public class MainActivity extends AppCompatActivity implements CategoryRVAdapter
 
     public void profile(View view){
         Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.putExtra("fullname",fullname);
         intent.putExtra("email",email);
-        this.startActivity(intent);
+        startActivity(intent);
     }
+
 }

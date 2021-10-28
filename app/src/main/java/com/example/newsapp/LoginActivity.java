@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,6 +27,7 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.Base64;
+import java.util.Calendar;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -54,6 +56,13 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        boolean isAllowed = SessionManagerUtil.getInstance().isSessionActive(this, Calendar.getInstance().getTime());
+        if(isAllowed){
+            Intent intent = new Intent(this,MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+        Log.e("TAG", "onCreate: "+isAllowed );
         username = (EditText)findViewById(R.id.username);
         password=(EditText)findViewById(R.id.password);
         pb = (ProgressBar) findViewById(R.id.progressBar);
@@ -120,8 +129,8 @@ public class LoginActivity extends AppCompatActivity {
                 if(response.code()==200){
                     UserLogged responselogin = response.body();
                     Data datauser = responselogin.getData();
-                    SessionManagerUtil.getInstance().storeUserToken(LoginActivity.this,datauser.getUsername());
                     token = responselogin.getToken();
+                    System.out.println("token : "+token);
                     String fullname = datauser.getFullName();
                     String email = datauser.getEmail();
                     System.out.println("fullname : "+fullname+"\nemail : "+email);
@@ -158,8 +167,8 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        intent.putExtra("name_key",name);
-        intent.putExtra("email_key",email);
+        intent.putExtra("fullname",name);
+        intent.putExtra("email",email);
         this.startActivity(intent);
         finish();
     }

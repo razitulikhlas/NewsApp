@@ -52,6 +52,18 @@ public class SessionManagerUtil {
         editor.apply();
     }
 
+    public void setflagdata(Context context, boolean flagdata){
+        SharedPreferences.Editor editor =
+                context.getSharedPreferences(SESSION_PREFERENCE, Context.MODE_PRIVATE).edit();
+        editor.putBoolean(SESSION_DATA, flagdata);
+        editor.apply();
+    }
+
+    public boolean getflagdata(Context context){
+        return context.getSharedPreferences(SESSION_PREFERENCE, Context.MODE_PRIVATE)
+                .getBoolean(SESSION_DATA, false);
+    }
+
     public String getUserToken(Context context){
         return context.getSharedPreferences(SESSION_PREFERENCE, Context.MODE_PRIVATE)
                 .getString(SESSION_TOKEN, "");

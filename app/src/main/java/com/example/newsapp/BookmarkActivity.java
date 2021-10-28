@@ -26,6 +26,8 @@ public class BookmarkActivity extends SessionActivity{
     private ArticleRoomViewModel articleRoomViewModel;
     private RecyclerView recyclerView;
     private ArticleAdapterBookmark articleAdapterBookmark;
+    private String fullname;
+    private String email;
 
     private final ArticleBookmarkClicableCallback articleBookmarkClicableCallback = new ArticleBookmarkClicableCallback() {
         @Override
@@ -40,6 +42,8 @@ public class BookmarkActivity extends SessionActivity{
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bookmark);
+        fullname = getIntent().getStringExtra("fullname");
+        email = getIntent().getStringExtra("email");
 
         articleRoomViewModel = new ViewModelProvider(BookmarkActivity.this).get(ArticleRoomViewModel.class);
 
@@ -107,6 +111,8 @@ public class BookmarkActivity extends SessionActivity{
         Intent intent = new Intent(BookmarkActivity.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.putExtra("fullname",fullname);
+        intent.putExtra("email",email);
         this.startActivity(intent);
         finish();
     }

@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.squareup.picasso.Picasso;
 
-public class NewsDetailActivity extends AppCompatActivity {
+public class NewsDetailActivity extends SessionActivity {
 
     String title,desc,content,imageUrl,url;
     private TextView titleTV, subDescTV, contentTV;
